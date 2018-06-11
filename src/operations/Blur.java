@@ -3,13 +3,32 @@ package operations;
 import org.opencv.core.Mat;
 import org.opencv.core.Size;
 import org.opencv.imgproc.Imgproc;
-
+/**
+ * @author matthewpropp
+ */
 public class Blur extends  MatOutput{
+	/**
+	 * previous operation layer to get image input
+	 */
 	private MatOutput input;
+	/**
+	 * the type of blur
+	 */
 	private BlurType blurtype;
+	/**
+	 * increases blur with a higher radius
+	 */
 	private double radius;
+	/**
+	 * the image output
+	 */
 	private Mat output;
-	
+	/**
+	 * Constructor for Blur class
+	 * @param input input layer (must output an image)
+	 * @param blurtype the type of blur (use BlurType.get(type))
+	 * @param radius increase for increased blur
+	 */
 	public Blur(MatOutput input, BlurType blurtype, double radius) {
 		super(input);
 		this.input = input;
@@ -17,7 +36,13 @@ public class Blur extends  MatOutput{
 		this.radius = radius;
 		this.output = null;
 	}
-	
+	/**
+	 * applies a blur to the input image
+	 * <p>
+	 * stores the resulting image as a varible in the class. The blured image
+	 * can be accessed using getOutput()
+	 */
+	@Override
 	public void process() {
 		int radius = (int)(this.radius + 0.5);
 		int kernelSize;
@@ -40,21 +65,34 @@ public class Blur extends  MatOutput{
 		}
 		runChildren();
 	}
-	
+	/**
+	 * returns the last blurred image
+	 * @return last blurred image
+	 */
 	public Mat getOutput() {
 		return this.output;
 	}
-	
-	enum BlurType {
+	/**
+	 *Different Blurtypes including "Box Blur", "Gaussian Blur", "Median Filter", and "Bilateral Filter"
+	 */
+	public enum BlurType {
 		BOX("Box Blur"), GAUSSIAN("Gaussian Blur"), MEDIAN("Median Filter"),
 		BILATERAL("Bilateral Filter");
-
+		/**
+		 * holds the type of blur as a String
+		 */
 		private final String label;
-
+		/*
+		 * Constructor for BlurType
+		 */
 		BlurType(String label) {
 			this.label = label;
 		}
-
+		/**
+		 * Will return a Blurtype of the given type
+		 * @param type the type of blur as a String
+		 * @return the BlurType correlating with the String type 
+		 */
 		public static BlurType get(String type) {
 			if (BILATERAL.label.equals(type)) {
 				return BILATERAL;
@@ -69,7 +107,6 @@ public class Blur extends  MatOutput{
 				return BOX;
 			}
 		}
-
 		@Override
 		public String toString() {
 			return this.label;
