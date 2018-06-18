@@ -17,9 +17,17 @@ public class RobotCameraInput extends MatOutput{
 	
 	public void process() {
 		this.cvSink.grabFrame(this.output);
+		System.out.println("grabbed");
+		if(this.output.width() != 0) {
+			super.runChildren();
+		}
 	}
-	
+	@Override
 	public Mat getOutput() {
 		return this.output;
+	}
+	@Override
+	public void clearMemory() {
+		this.output = new Mat();
 	}
 }

@@ -1,5 +1,6 @@
 package operations;
 
+import org.opencv.core.CvException;
 import org.opencv.core.Mat;
 import org.opencv.core.Size;
 import org.opencv.imgproc.Imgproc;
@@ -34,7 +35,7 @@ public class Blur extends  MatOutput{
 		this.input = input;
 		this.blurtype = blurtype;
 		this.radius = radius;
-		this.output = null;
+		this.output = new Mat();
 	}
 	/**
 	 * applies a blur to the input image
@@ -49,20 +50,37 @@ public class Blur extends  MatOutput{
 		switch(this.blurtype){
 			case BOX:
 				kernelSize = 2 * radius + 1;
-				Imgproc.blur(this.input.getOutput(), this.output, new Size(kernelSize, kernelSize));
+				try {
+					Imgproc.blur(this.input.getOutput(), this.output, new Size(kernelSize, kernelSize));
+				} catch(CvException e) {
+					System.out.println(e);
+				}
 				break;
 			case GAUSSIAN:
 				kernelSize = 6 * radius + 1;
-				Imgproc.GaussianBlur(this.input.getOutput(),this.output, new Size(kernelSize, kernelSize), radius);
+				try {
+					Imgproc.GaussianBlur(this.input.getOutput(),this.output, new Size(kernelSize, kernelSize), radius);
+				} catch(CvException e) {
+					System.out.println(e);
+				}
 				break;
 			case MEDIAN:
 				kernelSize = 2 * radius + 1;
-				Imgproc.medianBlur(this.input.getOutput(), this.output, kernelSize);
+				try {
+					Imgproc.medianBlur(this.input.getOutput(), this.output, kernelSize);
+				} catch(CvException e) {
+					System.out.println(e);
+				}
 				break;
 			case BILATERAL:
-				Imgproc.bilateralFilter(this.input.getOutput(), this.output, -1, radius, radius);
+				try {
+					Imgproc.bilateralFilter(this.input.getOutput(), this.output, -1, radius, radius);
+				} catch(CvException e) {
+					System.out.println(e);
+				}
 				break;
 		}
+		System.out.println("Blur");
 		runChildren();
 	}
 	/**
@@ -71,6 +89,10 @@ public class Blur extends  MatOutput{
 	 */
 	public Mat getOutput() {
 		return this.output;
+	}
+	@Override
+	public void clearMemory() {
+		this.output = new Mat();
 	}
 	/**
 	 *Different Blurtypes including "Box Blur", "Gaussian Blur", "Median Filter", and "Bilateral Filter"

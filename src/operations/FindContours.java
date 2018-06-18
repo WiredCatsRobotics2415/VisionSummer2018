@@ -3,6 +3,7 @@ package operations;
 import java.util.ArrayList;
 import java.util.List;
 
+import org.opencv.core.CvException;
 import org.opencv.core.Mat;
 import org.opencv.core.MatOfPoint;
 import org.opencv.imgproc.Imgproc;
@@ -49,7 +50,16 @@ public class FindContours extends ContourOutput{
 			mode = Imgproc.RETR_LIST;
 		}
 		int method = Imgproc.CHAIN_APPROX_SIMPLE;
-		Imgproc.findContours(this.input.getOutput(), this.contours, hierarchy, mode, method);
+		try {
+			Imgproc.findContours(this.input.getOutput(), this.contours, hierarchy, mode, method);
+		} catch(CvException e) {
+			System.out.println(e);
+		}
+		System.out.println("find");
+		if(this.contours.size() >= 1) {
+			System.out.println(Imgproc.boundingRect(this.contours.get(0)).height + "" +
+					Imgproc.boundingRect(this.contours.get(0)).width);
+		}
 		runChildren();
 	}
 	/**
@@ -59,5 +69,9 @@ public class FindContours extends ContourOutput{
 	@Override
 	public List<MatOfPoint> getContours() {
 		return this.contours;
+	}
+	@Override
+	public void clearMemory() {
+		this.contours.clear();
 	}
 }

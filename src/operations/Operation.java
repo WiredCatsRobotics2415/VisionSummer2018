@@ -39,8 +39,11 @@ public abstract class Operation {
 	}
 	
 	public void runChildren() {
+		System.out.println("hi");
 		for(Operation child: children) {
 			child.process();
 		}
+	}
+	public void clearMemory() {
 	}
 }

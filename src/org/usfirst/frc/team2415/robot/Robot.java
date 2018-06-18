@@ -7,6 +7,9 @@
 
 package org.usfirst.frc.team2415.robot;
 
+import edu.wpi.cscore.UsbCamera;
+import edu.wpi.cscore.VideoMode;
+import edu.wpi.first.wpilibj.CameraServer;
 import edu.wpi.first.wpilibj.IterativeRobot;
 import operations.*;
 import operations.Blur.BlurType;
@@ -21,18 +24,41 @@ import robotVision.VisionThread;
  */
 public class Robot extends IterativeRobot {
 	private VisionThread visionThread;
-
+	private Thread thread;
 	/**
 	 * This function is run when the robot is first started up and should be
 	 * used for any initialization code.
 	 */
 	@Override
 	public void robotInit() {
+		UsbCamera camera = CameraServer.getInstance().startAutomaticCapture();
+		camera.setResolution(640, 480);
+//		camera.setBrightness(80);
+		camera.setWhiteBalanceAuto();
+		System.out.println(camera.getBrightness());
+		camera.setExposureManual(15);
+		VideoMode videoMode = camera.getVideoMode();
 		this.visionThread = new VisionThread(new RobotCameraInput());
-		new Blur((MatOutput)(this.visionThread.getOperation()), BlurType.get("Box Blur"), 10);
-		new HSVThreshold((MatOutput)(this.visionThread.getOperation()), new double[] {0,180}, new double[] {0,255}, new double[] {0,255});
+		//new Blur((MatOutput)(this.visionThread.getOperation()), BlurType.get("Box Blur"), 10);
+		new HSVThreshold((MatOutput)(this.visionThread.getOperation()), new double[] {110,130}, new double[] {175,255}, new double[] {25,150});
 		new FindContours((MatOutput)(this.visionThread.getOperation()), false);
+		//new FilterContours((ContourOutput)(this.visionThread.getOperation()), new double[] {0,100}, new double[] {0,1});
+		new RobotCameraOutput((MatOutput)(this.visionThread.getOperation(new int[] {0})), "HSV", videoMode.width, videoMode.height);
+		new RobotCameraOutput((MatOutput)(this.visionThread.getOperation(new int[] {0})), "FindContours", videoMode.width, videoMode.height, (ContourOutput)(this.visionThread.getOperation(new int[] {0,0})));
+		//new ContourToMat((ContourOutput)(this.visionThread.getOperation(new int[] {0,0,0})));
+		//new RobotCameraOutput((MatOutput)(this.visionThread.getOperation(new int[] {0,0,0,0})), "FilterContours", videoMode.width, videoMode.height);
 		this.visionThread.start();
+		/*this.thread = new Thread(()-> {
+			while(!Thread.interrupted()) {
+				System.out.println(Runtime.getRuntime().freeMemory());
+				try {
+					Thread.sleep(100);
+				} catch (InterruptedException e) {
+					e.printStackTrace();
+				}
+			}
+		});
+		this.thread.start();*/
 	}
 
 	/**
@@ -48,7 +74,8 @@ public class Robot extends IterativeRobot {
 	 */
 	@Override
 	public void autonomousInit() {
-		
+		this.visionThread.interrupt();
+		//this.thread.interrupt();
 	}
 
 	/**
